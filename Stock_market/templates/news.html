@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Market News</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .news-box {
+            max-height: 500px;      /* Box height */
+            overflow-y: auto;       /* Vertical scroll */
+            border: 1px solid #ccc;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            scroll-behavior: smooth;  /* Smooth scroll */
+        }
+
+        .article {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .article img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+
+        .article-content {
+            flex: 1;
+        }
+
+        .article h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+
+        .article p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: #ff4d4d;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 6px;
+            margin-left: 5px;
+            border-radius: 4px;
+        }
+
+        .load-more {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ username }}</h2>
+        <div class="news-box" id="news-box">
+            {% for article in articles[:5] %}  <!-- Show first 5 -->
+            <div class="article">
+                {% if article.urlToImage %}
+                <img src="{{ article.urlToImage }}" alt="News Image">
+                {% endif %}
+                <div class="article-content">
+                    <h3>
+                        <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+                        {% if article.publishedAt[:10] == (loop.index0|date("Y-m-d")) %}
+                        <span class="badge">New</span>
+                        {% endif %}
+                    </h3>
+                    <p>{{ article.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if articles|length > 5 %}
+        <button class="load-more" id="loadMoreBtn">Load More</button>
+        {% endif %}
+        <br>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <script>
+        let articles = {{ articles|tojson }};
+        let currentIndex = 5;
+
+        document.getElementById('loadMoreBtn')?.addEventListener('click', function() {
+            const newsBox = document.getElementById('news-box');
+
+            let html = '';
+            for (let i = currentIndex; i < currentIndex + 5 && i < articles.length; i++) {
+                const article = articles[i];
+                html += `<div class="article">`;
+                if(article.urlToImage){
+                    html += `<img src="${article.urlToImage}" alt="News Image">`;
+                }
+                html += `<div class="article-content">
+                            <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                            <p>${article.description || ''}</p>
+                        </div>
+                    </div>`;
+            }
+
+            newsBox.insertAdjacentHTML('beforeend', html);
+            currentIndex += 5;
+
+            // Hide button if no more articles
+            if(currentIndex >= articles.length){
+                document.getElementById('loadMoreBtn').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

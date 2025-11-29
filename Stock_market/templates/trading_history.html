@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trading History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: #334155;
+            color: #60a5fa;
+        }
+
+        .filter-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .btn-filter {
+            background: #60a5fa;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            height: fit-content;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .history-table {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+        }
+
+        .history-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            background: #334155;
+            color: #e2e8f0;
+            text-align: left;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .history-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .history-table tr:hover {
+            background: #334155;
+        }
+
+        .buy-action {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .sell-action {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .no-history {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .no-history i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            background: #334155;
+            color: #e2e8f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn.active, .page-btn:hover {
+            background: #60a5fa;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .filter-form {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .history-table {
+                overflow-x: auto;
+            }
+            
+            .history-table table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Trading History</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Dashboard</a>
+                <a href="{{ url_for('portfolio') }}">Portfolio</a>
+                <a href="{{ url_for('trade') }}">Trade</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <h2 style="margin-bottom: 20px; color: #e2e8f0;">Filter Transactions</h2>
+            <form class="filter-form">
+                <div class="filter-group">
+                    <label for="symbolFilter">Symbol</label>
+                    <input type="text" id="symbolFilter" placeholder="Filter by symbol">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="actionFilter">Action</label>
+                    <select id="actionFilter">
+                        <option value="">All Actions</option>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dateFilter">Date Range</label>
+                    <select id="dateFilter">
+                        <option value="">All Time</option>
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="365">Last Year</option>
+                    </select>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button type="button" class="btn-filter" onclick="applyFilters()">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="history-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total Value</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade in trading_history %}
+                    <tr>
+                        <td>{{ trade.trade_time or trade.date }}</td>
+                        <td>{{ trade.symbol }}</td>
+                        <td class="{% if (trade.action or trade.action) == 'buy' %}buy-action{% else %}sell-action{% endif %}">{{ (trade.action or trade.action)|title }}</td>
+                        <td>{{ trade.quantity }}</td>
+                        <td>₹{{ "%.2f"|format(trade.price) }}</td>
+                        <td>₹{{ "%.2f"|format(trade.quantity * trade.price) }}</td>
+                        <td>Completed</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="no-history">
+                            <i>📋</i>
+                            <h3>No Trading History</h3>
+                            <p>You haven't made any trades yet. Start trading to build your history!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        function applyFilters() {
+            const symbolFilter = document.getElementById('symbolFilter').value.toUpperCase();
+            const actionFilter = document.getElementById('actionFilter').value;
+            
+            const rows = document.querySelectorAll('.history-table tbody tr');
+            
+            rows.forEach(row => {
+                const symbol = row.cells[1].textContent.toUpperCase();
+                const action = row.cells[2].textContent.toLowerCase();
+                
+                const symbolMatch = symbolFilter === '' || symbol.includes(symbolFilter);
+                const actionMatch = actionFilter === '' || action === actionFilter;
+                
+                if (symbolMatch && actionMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Apply filters when Enter is pressed in symbol filter
+        document.getElementById('symbolFilter').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    </script>
+</body>
+</html>

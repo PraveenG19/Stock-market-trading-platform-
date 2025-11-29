@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Next Week Predictions - AI Driven Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-home {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-portfolio {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-trade {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .prediction-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .prediction-header h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .prediction-header p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .positive {
+            color: #27ae60;
+        }
+
+        .negative {
+            color: #e74c3c;
+        }
+
+        .prediction-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .high-icon {
+            color: #27ae60;
+        }
+
+        .low-icon {
+            color: #e74c3c;
+        }
+
+        .neutral-icon {
+            color: #f39c12;
+        }
+
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .prediction-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border-left: 4px solid #3498db;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .go-high-card {
+            border-left-color: #27ae60;
+        }
+
+        .go-low-card {
+            border-left-color: #e74c3c;
+        }
+
+        .neutral-card {
+            border-left-color: #f39c12;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stock-info h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .stock-symbol {
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .prediction-type {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .go-high {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+        }
+
+        .go-low {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .neutral {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+        }
+
+        .card-body {
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .recommendation {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .recommendation.buy {
+            color: #27ae60;
+        }
+
+        .recommendation.sell {
+            color: #e74c3c;
+        }
+
+        .recommendation.hold {
+            color: #f39c12;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .indicator {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .indicator-value {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .btn-view-chart {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-view-chart:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .methodology {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .methodology h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .methodology ul {
+            padding-left: 20px;
+        }
+
+        .methodology li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .disclaimer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 12px;
+            color: #c0392b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .predictions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 AI Driven Trading Platform</h1>
+            <div class="user-info">
+                <span>Welcome, {{ username }}</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="btn-home">🏠 Dashboard</a>
+                <a href="{{ url_for('portfolio') }}" class="btn-portfolio">💼 Portfolio</a>
+                <a href="{{ url_for('trade') }}" class="btn-trade">📈 Trade</a>
+                <a href="{{ url_for('logout') }}" class="btn-logout">🔒 Logout</a>
+            </div>
+        </div>
+
+        <div class="prediction-header">
+            <h2>🔮 Next Week Stock Predictions</h2>
+            <p>Our advanced algorithm analyzes technical indicators to predict potential stock movements for the upcoming week. These predictions are based on comprehensive technical analysis including RSI, MACD, Moving Averages, and Bollinger Bands.</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value">{{ go_high_predictions|length }}</div>
+                <div class="stat-label">GO HIGH Predictions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ go_low_predictions|length }}</div>
+                <div class="stat-label">GO LOW Predictions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ neutral_predictions|length }}</div>
+                <div class="stat-label">Neutral Predictions</div>
+            </div>
+        </div>
+
+        <!-- GO HIGH Predictions -->
+        <div class="prediction-section">
+            <h2 class="section-title"><span class="high-icon">📈</span> Stocks Predicted to GO HIGH Next Week</h2>
+            <div class="predictions-grid">
+                {% for prediction in go_high_predictions %}
+                <div class="prediction-card go-high-card">
+                    <div class="card-header">
+                        <div class="stock-info">
+                            <h3>{{ prediction.name }}</h3>
+                            <div class="stock-symbol">{{ prediction.symbol }}</div>
+                        </div>
+                        <div class="prediction-type go-high">GO HIGH</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="current-price">₹{{ "{:,.2f}".format(prediction.current_price * 83.0) }}</div>
+                        <div class="recommendation buy">{{ prediction.recommendation }}</div>
+                        <p>Based on strong technical indicators suggesting upward momentum</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="indicator">
+                            <span>RSI</span>
+                            <span class="indicator-value">{{ prediction.rsi }}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>Signals</span>
+                            <span class="indicator-value">{{ prediction.buy_signals }} Buy</span>
+                        </div>
+                        <div class="indicator">
+                            <a href="{{ url_for('prediction_chart', symbol=prediction.symbol) }}" class="btn-view-chart">View Chart</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p>No strong "GO HIGH" predictions at this time.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- GO LOW Predictions -->
+        <div class="prediction-section">
+            <h2 class="section-title"><span class="low-icon">📉</span> Stocks Predicted to GO LOW Next Week</h2>
+            <div class="predictions-grid">
+                {% for prediction in go_low_predictions %}
+                <div class="prediction-card go-low-card">
+                    <div class="card-header">
+                        <div class="stock-info">
+                            <h3>{{ prediction.name }}</h3>
+                            <div class="stock-symbol">{{ prediction.symbol }}</div>
+                        </div>
+                        <div class="prediction-type go-low">GO LOW</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="current-price">₹{{ "{:,.2f}".format(prediction.current_price * 83.0) }}</div>
+                        <div class="recommendation sell">{{ prediction.recommendation }}</div>
+                        <p>Based on technical indicators suggesting downward pressure</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="indicator">
+                            <span>RSI</span>
+                            <span class="indicator-value">{{ prediction.rsi }}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>Signals</span>
+                            <span class="indicator-value">{{ prediction.sell_signals }} Sell</span>
+                        </div>
+                        <div class="indicator">
+                            <a href="{{ url_for('prediction_chart', symbol=prediction.symbol) }}" class="btn-view-chart">View Chart</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p>No strong "GO LOW" predictions at this time.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Neutral Predictions -->
+        <div class="prediction-section">
+            <h2 class="section-title"><span class="neutral-icon">📊</span> Neutral Predictions</h2>
+            <div class="predictions-grid">
+                {% for prediction in neutral_predictions %}
+                <div class="prediction-card neutral-card">
+                    <div class="card-header">
+                        <div class="stock-info">
+                            <h3>{{ prediction.name }}</h3>
+                            <div class="stock-symbol">{{ prediction.symbol }}</div>
+                        </div>
+                        <div class="prediction-type neutral">NEUTRAL</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="current-price">₹{{ "{:,.2f}".format(prediction.current_price * 83.0) }}</div>
+                        <div class="recommendation hold">{{ prediction.recommendation }}</div>
+                        <p>Market direction unclear, recommend holding position</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="indicator">
+                            <span>RSI</span>
+                            <span class="indicator-value">{{ prediction.rsi }}</span>
+                        </div>
+                        <div class="indicator">
+                            <span>Signals</span>
+                            <span class="indicator-value">{{ prediction.buy_signals }} Buy / {{ prediction.sell_signals }} Sell</span>
+                        </div>
+                        <div class="indicator">
+                            <a href="{{ url_for('prediction_chart', symbol=prediction.symbol) }}" class="btn-view-chart">View Chart</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p>No neutral predictions at this time.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="methodology">
+            <h3>🔬 Prediction Methodology</h3>
+            <ul>
+                <li><strong>Technical Analysis:</strong> Our system analyzes multiple technical indicators including RSI, MACD, Moving Averages, and Bollinger Bands</li>
+                <li><strong>Pattern Recognition:</strong> We identify bullish and bearish patterns in price movements</li>
+                <li><strong>Volume Analysis:</strong> Trading volume patterns are evaluated for confirmation signals</li>
+                <li><strong>Market Sentiment:</strong> We incorporate market sentiment indicators for comprehensive analysis</li>
+                <li><strong>Historical Data:</strong> Patterns from historical data are used to predict future movements</li>
+            </ul>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>⚠️ Disclaimer:</strong> These predictions are based on technical analysis and should not be considered financial advice. 
+            Stock markets are inherently unpredictable, and past performance does not guarantee future results. 
+            Always conduct your own research and consult with a financial advisor before making investment decisions.</p>
+        </div>
+    </div>
+</body>
+</html>

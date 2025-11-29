@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Trade Buttons</title>
+</head>
+<body>
+    <h1>Test Trade Buttons</h1>
+    
+    <div>
+        <label>Symbol: <input type="text" id="symbol" value="AAPL"></label><br><br>
+        <label>Quantity: <input type="number" id="quantity" value="1"></label><br><br>
+        <label>Price: <input type="text" id="pricePerShare" value="₹150.00"></label><br><br>
+        
+        <button onclick="executeTrade('buy')">Buy</button>
+        <button onclick="executeTrade('sell')">Sell</button>
+    </div>
+
+    <script>
+        // Ultra-simple trade execution - no error handling
+        function executeTrade(action) {
+            // Ultra-simple trade execution - no error handling
+            console.log('ExecuteTrade called with action:', action);
+            
+            // Get form values
+            const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const priceText = document.getElementById('pricePerShare').value;
+            
+            // Extract price
+            let price = 0;
+            if (priceText && priceText.startsWith('$')) {
+                price = parseFloat(priceText.substring(1)) || 0;
+            } else {
+                price = parseFloat(priceText) || 0;
+            }
+            
+            console.log('Trade parameters:', action, symbol, quantity, price);
+            
+            // Prepare trade data
+            const tradeData = {
+                symbol: symbol || 'TEST',
+                action: action || 'buy',
+                quantity: quantity || 1,
+                price: price || 100.0
+            };
+            
+            // Send trade execution request to backend
+            fetch('/execute_trade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(tradeData)
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data && data.success) {
+                    alert('SUCCESS: ' + data.message);
+                } else {
+                    alert('FAILED: ' + (data.message || 'Trade execution failed'));
+                }
+            })
+            .catch(function(error) {
+                console.log('Network error:', error);
+                alert('Network error - please check your connection');
+            });
+        }
+    </script>
+</body>
+</html>
