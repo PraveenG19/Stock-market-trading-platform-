@@ -1,7 +1,7 @@
 \documentclass[10pt, conference, compsocconf]{IEEEtran}
 \usepackage{amsmath, amssymb, graphicx, algorithm, algorithmic, url, cite, float}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{shapes.geometric, arrows, positioning, fit, calc}
 \usepackage{pgfplots}
 \usepackage{listings}
 \usepackage{xcolor}
@@ -69,26 +69,39 @@ The system consists of three main layers:
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    node distance=2cm,
-    block/.style={rectangle, draw, fill=blue!20, text width=5em, text centered, rounded corners, minimum height=4em},
-    cloud/.style={draw, ellipse,fill=red!20, node distance=3cm, minimum height=2em},
+    node distance=1.5cm and 2cm,
+    block/.style={rectangle, draw, fill=blue!20, text width=6em, text centered, rounded corners, minimum height=3em},
+    datablock/.style={rectangle, draw, fill=green!20, text width=6em, text centered, rounded corners, minimum height=3em},
+    apiblock/.style={rectangle, draw, fill=orange!20, text width=6em, text centered, rounded corners, minimum height=3em},
+    mlblock/.style={rectangle, draw, fill=purple!20, text width=6em, text centered, rounded corners, minimum height=3em},
+    arrow/.style={->, thick},
     line/.style={draw, -latex'}
 ]
-    \node [block] (client) {Web Client};
-    \node [block, right of=client, xshift=3cm] (server) {Flask Server};
-    \node [block, below of=server] (database) {MySQL Database};
-    \node [block, above of=server] (api) {Yahoo Finance API};
-    \node [block, right of=server, xshift=3cm] (ml) {ML Models};
+    % Nodes
+    \node[block] (client) {Web Client\\(HTML/CSS/JS)};
+    \node[block, right=of client] (server) {Flask Server\\(Python)};
+    \node[datablock, below=of server] (database) {MySQL Database\\(User/Portfolio Data)};
+    \node[apiblock, above=of server] (api) {Yahoo Finance API\\(Real-time Data)};
+    \node[mlblock, right=of server] (ml) {ML Models\\(Scikit-learn)};
+    \node[block, below=of ml] (news) {News Engine\\(Live Updates)};
     
-    \path [line] (client) -- (server);
-    \path [line] (server) -- (database);
-    \path [line] (server) -- (api);
-    \path [line] (api) -- (server);
-    \path [line] (server) -- (ml);
-    \path [line] (ml) -- (server);
+    % Arrows
+    \draw[arrow] (client) -- node[above] {HTTP Requests} (server);
+    \draw[arrow] (server) -- node[right] {SQL Queries} (database);
+    \draw[arrow] (server) -- node[left] {API Calls} (api);
+    \draw[arrow] (api) -- node[left] {Market Data} (server);
+    \draw[arrow] (server) -- node[above] {Data} (ml);
+    \draw[arrow] (ml) -- node[above] {Signals} (server);
+    \draw[arrow] (server) -- node[right] {Requests} (news);
+    \draw[arrow] (news) -- node[right] {News Data} (server);
+    
+    % Grouping
+    \node[draw, dashed, fit=(client), inner sep=10pt, label=above:Presentation Layer] {};
+    \node[draw, dashed, fit=(server) (ml) (news), inner sep=15pt, label=above:Business Logic Layer] {};
+    \node[draw, dashed, fit=(database) (api), inner sep=15pt, label=below:Data Layer] {};
 \end{tikzpicture}
-\caption{System Architecture Diagram}
-\label{fig:architecture}
+\caption{Enhanced System Architecture Diagram with Layer Separation}
+\label{fig:enhanced_architecture}
 \end{figure}
 
 \subsection{Component Description}
@@ -98,6 +111,75 @@ The system consists of three main layers:
     \item \textbf{MySQL Database:} Stores user information, portfolio data, and transaction history
     \item \textbf{Yahoo Finance API:} Provides real-time stock market data
     \item \textbf{ML Models:} Machine learning algorithms for price prediction and trading signals
+\end{itemize}
+
+\section{Data Flow and Processing}
+To better understand how data moves through the system, we present a detailed data flow diagram that illustrates the path of information from external sources to user interfaces.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    process/.style={rectangle, draw, fill=blue!10, minimum width=3cm, minimum height=1cm, align=center},
+    data/.style={rectangle, draw, fill=green!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    datastore/.style={rectangle, draw, fill=yellow!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    external/.style={rectangle, draw, fill=red!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    arrow/.style={->, thick}
+]
+    % External entities
+    \node[external] (user) at (0,0) {Trader/User};
+    \node[external] (yahoo) at (12,0) {Yahoo Finance};
+    \node[external] (newsapi) at (12,6) {News Sources};
+    
+    % Processes
+    \node[process] (auth) at (3,0) {Authentication\\Module};
+    \node[process] (ui) at (6,0) {User Interface\\Controller};
+    \node[process] (market) at (9,0) {Market Data\\Processor};
+    \node[process] (analysis) at (6,-3) {Technical Analysis\\Engine};
+    \node[process] (trading) at (3,-3) {Trading\\Engine};
+    \node[process] (ml) at (9,-3) {AI/ML\\Analyzer};
+    \node[process] (news) at (9,3) {News\\Processor};
+    
+    % Data stores
+    \node[datastore] (db) at (3,-6) {Database\\(MySQL)};
+    \node[datastore] (cache) at (6,-6) {Cache\\(Redis)};
+    \node[datastore] (models) at (9,-6) {ML Models\\Storage};
+    
+    % Data flows
+    \draw[arrow] (user) -- node[above] {Login/Requests} (auth);
+    \draw[arrow] (auth) -- node[above] {Authenticated\\Requests} (ui);
+    \draw[arrow] (ui) -- node[above] {Data\\Requests} (market);
+    \draw[arrow] (yahoo) -- node[above] {Real-time\\Market Data} (market);
+    \draw[arrow] (market) -- node[right] {Processed\\Data} (analysis);
+    \draw[arrow] (analysis) -- node[above] {Technical\\Indicators} (ui);
+    \draw[arrow] (ui) -- node[right] {Trade\\Orders} (trading);
+    \draw[arrow] (trading) -- node[above] {Execute\\Trades} (market);
+    \draw[arrow] (market) -- node[right] {Historical\\Data} (ml);
+    \draw[arrow] (ml) -- node[above] {AI Signals} (ui);
+    \draw[arrow] (newsapi) -- node[right] {News\\Feeds} (news);
+    \draw[arrow] (news) -- node[above] {Processed\\News} (ui);
+    
+    % Database connections
+    \draw[arrow] (auth) -- node[right] {User\\Data} (db);
+    \draw[arrow] (trading) -- node[right] {Transaction\\Records} (db);
+    \draw[arrow] (db) -- node[right] {Portfolio\\Data} (ui);
+    \draw[arrow] (market) -- node[right] {Cache\\Updates} (cache);
+    \draw[arrow] (ml) -- node[right] {Model\\Updates} (models);
+    
+    % Feedback loops
+    \draw[arrow] (ui) -- node[left] {UI Updates} (user);
+    \draw[arrow] (cache) -- node[above] {Cached\\Data} (market);
+\end{tikzpicture}
+\caption{Data Flow Diagram Showing Information Movement Through the System}
+\label{fig:dataflow}
+\end{figure}
+
+This diagram illustrates the complex data flows within the system:
+\begin{itemize}
+    \item External data sources (Yahoo Finance, News APIs) feed into the system
+    \item User interactions drive authentication and trading processes
+    \item Data is processed through multiple engines (Market Data, Technical Analysis, AI/ML)
+    \item Results are stored in databases and caches for efficient retrieval
+    \item Processed information is presented to users through the interface
 \end{itemize}
 
 \section{Technical Implementation}
@@ -135,29 +217,92 @@ This module implements machine learning algorithms for price prediction and trad
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    class/.style={rectangle, draw, fill=blue!10, minimum width=3cm, minimum height=1cm, align=center},
+    class/.style={rectangle, draw, fill=blue!10, minimum width=3.5cm, minimum height=1.2cm, align=center},
     inheritance/.style={draw, -latex', dashed},
-    association/.style={draw, -latex'}
+    association/.style={draw, -latex'},
+    composition/.style={draw, -latex', thick},
+    aggregation/.style={draw, -latex', thick, dashed}
 ]
-    \node[class] (user) at (0,0) {User};
-    \node[class] (portfolio) at (4,0) {Portfolio};
-    \node[class] (stock) at (8,0) {Stock};
-    \node[class] (trade) at (0,-3) {Trade};
-    \node[class] (tradingengine) at (4,-3) {TradingEngine};
-    \node[class] (marketdata) at (8,-3) {MarketDataEngine};
-    \node[class] (mlmodel) at (4,-6) {MLModel};
+    % Classes
+    \node[class] (user) at (0,0) {User\\+ username: String\\+ email: String\\+ password: String};
+    \node[class] (portfolio) at (5,0) {Portfolio\\+ stocks: List<Stock>\\+ totalValue: Float\\+ profitLoss: Float};
+    \node[class] (stock) at (10,0) {Stock\\+ symbol: String\\+ name: String\\+ currentPrice: Float\\+ quantity: Integer};
+    \node[class] (trade) at (0,-4) {Trade\\+ symbol: String\\+ action: String\\+ quantity: Integer\\+ price: Float\\+ timestamp: DateTime};
+    \node[class] (tradingengine) at (5,-4) {TradingEngine\\+ executeTrade(): Boolean\\+ calculatePortfolioValue(): Float\\+ validateOrder(): Boolean};
+    \node[class] (marketdata) at (10,-4) {MarketDataEngine\\+ fetchRealTimeData(): Map\\+ calculateIndicators(): Map\\+ getPriceHistory(): List};
+    \node[class] (mlmodel) at (5,-8) {MLModel\\+ predictPrice(): Float\\+ generateSignal(): Signal\\+ trainModel(): void};
+    \node[class] (signal) at (0,-8) {TradingSignal\\+ recommendation: String\\+ confidence: Integer\\+ outlook: String\\+ timestamp: DateTime};
     
-    \draw[association] (user) -- (portfolio) node[midway, above] {owns};
-    \draw[association] (portfolio) -- (stock) node[midway, above] {contains};
-    \draw[association] (user) -- (trade) node[midway, left] {executes};
-    \draw[association] (trade) -- (tradingengine) node[midway, above] {processes};
-    \draw[association] (tradingengine) -- (marketdata) node[midway, above] {fetches};
-    \draw[association] (marketdata) -- (mlmodel) node[midway, right] {uses};
-    \draw[association] (tradingengine) -- (mlmodel) node[midway, right] {applies};
+    % Relationships
+    \draw[composition] (user) -- node[above] {1} node[below] {1..*} (portfolio);
+    \draw[aggregation] (portfolio) -- node[above] {1..*} node[below] {1..*} (stock);
+    \draw[association] (user) -- node[left] {1..*} node[right] {1} (trade);
+    \draw[association] (trade) -- node[above] {1} node[below] {1} (tradingengine);
+    \draw[association] (tradingengine) -- node[above] {1} node[below] {1} (marketdata);
+    \draw[association] (marketdata) -- node[right] {1} node[left] {1} (mlmodel);
+    \draw[association] (tradingengine) -- node[right] {1} node[left] {1} (mlmodel);
+    \draw[association] (mlmodel) -- node[above] {1..*} node[below] {1} (signal);
+    \draw[association] (tradingengine) -- node[left] {1..*} node[right] {1} (signal);
 \end{tikzpicture}
-\caption{Class Diagram of the System}
-\label{fig:classdiagram}
+\caption{Detailed Class Diagram with Attributes and Methods}
+\label{fig:detailed_classdiagram}
 \end{figure}
+
+\section{AI/ML Model Architecture}
+The artificial intelligence and machine learning components form the predictive core of the platform. The following diagram illustrates the architecture of the AI system:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    component/.style={rectangle, draw, fill=blue!10, minimum width=3cm, minimum height=1cm, align=center},
+    data/.style={rectangle, draw, fill=green!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    process/.style={rectangle, draw, fill=orange!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    output/.style={rectangle, draw, fill=purple!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    arrow/.style={->, thick}
+]
+    % AI/ML Architecture
+    \node[data] (historical) at (0,0) {Historical Market\\Data (1Y)};
+    \node[data] (realtime) at (0,-2) {Real-time Market\\Data (Live)};
+    \node[process] (preprocess) at (3,-1) {Data Preprocessing\\and Feature Engineering};
+    \node[component] (lstm) at (6,1) {LSTM Neural\\Network};
+    \node[component] (svm) at (6,-1) {Support Vector\\Machine};
+    \node[component] (rf) at (6,-3) {Random Forest\\Classifier};
+    \node[process] (ensemble) at (9,-1) {Ensemble\\Method};
+    \node[output] (prediction) at (12,-1) {Price Prediction\\(7-day forecast)};
+    \node[output] (signal) at (12,-3) {Trading Signal\\(Buy/Sell/Hold)};
+    
+    % Connections
+    \draw[arrow] (historical) -- (preprocess);
+    \draw[arrow] (realtime) -- (preprocess);
+    \draw[arrow] (preprocess) -- node[above] {Features} (lstm);
+    \draw[arrow] (preprocess) -- node[above] {Features} (svm);
+    \draw[arrow] (preprocess) -- node[below] {Features} (rf);
+    \draw[arrow] (lstm) -- (ensemble);
+    \draw[arrow] (svm) -- (ensemble);
+    \draw[arrow] (rf) -- (ensemble);
+    \draw[arrow] (ensemble) -- node[above] {Prediction} (prediction);
+    \draw[arrow] (ensemble) -- node[below] {Signal} (signal);
+    
+    % Feedback loop for model training
+    \draw[arrow] (prediction) -- ++(0,-2) -- node[below] {Accuracy Feedback} ++(-12,0) -- ++(0,2);
+\end{tikzpicture}
+\caption{AI/ML Model Architecture Diagram}
+\label{fig:ai_ml_architecture}
+\end{figure}
+
+The AI/ML architecture consists of multiple components working in parallel:
+\begin{itemize}
+    \item \textbf{Data Sources:} Both historical and real-time market data are used as inputs
+    \item \textbf{Preprocessing:} Data is cleaned, normalized, and transformed into features suitable for machine learning
+    \item \textbf{Multiple Models:} Three different algorithms are employed to capture various aspects of market behavior:
+        \begin{itemize}
+            \item LSTM Neural Networks for sequential pattern recognition
+            \item Support Vector Machines for classification tasks
+            \item Random Forest for ensemble-based predictions
+        \end{itemize}
+    \item \textbf{Ensemble Method:} Combines predictions from all models for improved accuracy
+    \item \textbf{Outputs:} Generates both price forecasts and trading signals with confidence metrics
+\end{itemize}
 
 \section{AI-Powered Trading Signals}
 The platform incorporates machine learning algorithms to generate trading signals based on market data analysis. The AI system evaluates multiple factors including:
@@ -197,6 +342,65 @@ Interactive charts with multiple technical indicators:
     \item Momentum indicators (RSI, MACD)
     \item Volume analysis
 \end{itemize}
+
+\subsection{Technical Analysis Workflow}
+The technical analysis module is a critical component of the platform that processes market data to generate actionable insights. The workflow is illustrated in the following diagram:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    process/.style={rectangle, draw, fill=blue!10, minimum width=3cm, minimum height=1cm, align=center},
+    data/.style={rectangle, draw, fill=green!10, minimum width=2.5cm, minimum height=0.8cm, align=center},
+    decision/.style={diamond, draw, fill=yellow!10, minimum width=2cm, minimum height=1cm, align=center},
+    arrow/.style={->, thick}
+]
+    % Workflow steps
+    \node[process] (input) at (0,0) {Raw Market Data\\(OHLC Prices)};
+    \node[process] (clean) at (3,0) {Data Cleaning\\and Validation};
+    \node[decision] (quality) at (6,0) {Data Quality\\Check};
+    \node[process] (sma) at (9,1) {Simple Moving\\Average (SMA)};
+    \node[process] (ema) at (9,-1) {Exponential Moving\\Average (EMA)};
+    \node[process] (rsi) at (12,1) {Relative Strength\\Index (RSI)};
+    \node[process] (macd) at (12,-1) {Moving Average\\Convergence (MACD)};
+    \node[process] (bollinger) at (15,0) {Bollinger\\Bands};
+    \node[process] (consolidate) at (18,0) {Consolidate\\Indicators};
+    \node[process] (output) at (21,0) {Technical Analysis\\Dashboard};
+    
+    % Arrows
+    \draw[arrow] (input) -- (clean);
+    \draw[arrow] (clean) -- (quality);
+    \draw[arrow] (quality) -- node[above] {Pass} (sma);
+    \draw[arrow] (quality) -- node[below] {Pass} (ema);
+    \draw[arrow] (sma) -- (rsi);
+    \draw[arrow] (ema) -- (macd);
+    \draw[arrow] (rsi) -- (bollinger);
+    \draw[arrow] (macd) -- (bollinger);
+    \draw[arrow] (bollinger) -- (consolidate);
+    \draw[arrow] (consolidate) -- (output);
+    
+    % Feedback loop
+    \draw[arrow] (quality) -- ++(0,-2) -- node[below] {Fail} ++(-6,0) -- ++(0,2);
+    
+    % Labels
+    \node at (6,-1.5) {Retry/Alert};
+\end{tikzpicture}
+\caption{Technical Analysis Workflow Diagram}
+\label{fig:tech_analysis_workflow}
+\end{figure}
+
+This workflow demonstrates the systematic approach to technical analysis:
+\begin{enumerate}
+    \item Raw market data is collected from Yahoo Finance API
+    \item Data undergoes cleaning and validation processes
+    \item Quality checks ensure data integrity
+    \item Multiple technical indicators are calculated in parallel:
+        \begin{itemize}
+            \item Moving averages for trend identification
+            \item Momentum indicators for price movement strength
+            \item Volatility measures for risk assessment
+        \end{itemize}
+    \item Results are consolidated into a comprehensive dashboard
+\end{enumerate}
 
 \subsection{Portfolio Management}
 Features include:
